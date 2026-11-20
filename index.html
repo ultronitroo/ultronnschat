@@ -7,44 +7,47 @@
   <script src="https://cdn.tailwindcss.com/3.4.17"></script>
   <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
   <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/13.3.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/13.3.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/13.3.0/firebase-firestore-compat.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg-app: #efeae2;
-      --bg-sidebar: #ffffff;
-      --bg-header: #f0f2f5;
-      --bg-panel: #f0f2f5;
-      --bg-hover: #f5f6f6;
-      --bg-active: #f0f2f5;
-      --bg-msg-out: #d9fdd3;
+      --bg-app: #2B3230;
+      --bg-sidebar: #f4f4f5;
+      --bg-header: #e4e4e7;
+      --bg-panel: #e4e4e7;
+      --bg-hover: #e4e4e7;
+      --bg-active: #d4d4d8;
+      --bg-msg-out: #18181b;
       --bg-msg-in: #ffffff;
       --bg-input: #ffffff;
-      --border-color: #e9edef;
-      --text-primary: #111b21;
-      --text-secondary: #667781;
-      --accent: #00a884;
-      --accent-dark: #008069;
-      --tick-read: #53bdeb;
+      --border-color: #d4d4d8;
+      --text-primary: #09090b;
+      --text-secondary: #52525b;
+      --accent: #18181b;
+      --accent-dark: #09090b;
+      --tick-read: #ffffff;
     }
 
     html.dark {
-      --bg-app: #0b141a;
-      --bg-sidebar: #111b21;
-      --bg-header: #202c33;
-      --bg-panel: #202c33;
-      --bg-hover: #202c33;
-      --bg-active: #2a3942;
-      --bg-msg-out: #005c4b;
-      --bg-msg-in: #202c33;
-      --bg-input: #2a3942;
-      --border-color: #222e35;
-      --text-primary: #e9edef;
-      --text-secondary: #8696a0;
-      --accent: #00a884;
-      --accent-dark: #00a884;
-      --tick-read: #53bdeb;
+      --bg-app: #2B3230;
+      --bg-sidebar: #09090b;
+      --bg-header: #111111;
+      --bg-panel: #18181b;
+      --bg-hover: #18181b;
+      --bg-active: #27272a;
+      --bg-msg-out: #09090b;
+      --bg-msg-in: #1b1f1e;
+      --bg-input: #1c1c1e;
+      --border-color: #27272a;
+      --text-primary: #f4f4f5;
+      --text-secondary: #a1a1aa;
+      --accent: #3f3f46;
+      --accent-dark: #27272a;
+      --tick-read: #e4e4e7;
     }
 
     * {
@@ -81,7 +84,8 @@
 
     .msg-bubble-out {
       background-color: var(--bg-msg-out);
-      color: var(--text-primary);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 10px 2px 10px 10px;
     }
 
@@ -327,6 +331,20 @@
 
         <div class="space-y-3">
           <div>
+            <label for="input-friend-email" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">Friend's Email ID (Cloud Chat — works even offline)</label>
+            <div class="flex gap-2">
+              <input id="input-friend-email" type="email" placeholder="e.g. friend@example.com" class="flex-1 px-3 py-2 rounded-lg text-sm border outline-none" style="background-color: var(--bg-input); border-color: var(--border-color); color: var(--text-primary);" />
+              <button id="btn-find-by-email" type="button" class="px-3 py-2 rounded-lg text-xs font-medium text-white flex-shrink-0" style="background-color: var(--accent);">
+                Add Email
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 text-[11px]" style="color: var(--text-secondary);">
+            <span class="flex-1 h-px" style="background-color: var(--border-color);"></span>
+            <span>OR P2P CHAT ID</span>
+            <span class="flex-1 h-px" style="background-color: var(--border-color);"></span>
+          </div>
+          <div>
             <label for="input-friend-name" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">Friend's Nickname (optional)</label>
             <input id="input-friend-name" type="text" placeholder="e.g. Sam" class="w-full px-3 py-2 rounded-lg text-sm border outline-none" style="background-color: var(--bg-input); border-color: var(--border-color); color: var(--text-primary);" />
           </div>
@@ -374,8 +392,8 @@
     </div>
   </div>
 
-  <!-- Create Account Modal -->
-  <div id="modal-account" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+  <!-- Create / Log In Account Modal -->
+  <div id="modal-account" class="hidden fixed inset-0 z-50 bg-black/65 backdrop-blur-xs flex items-center justify-center p-4">
     <div class="w-full max-w-md rounded-2xl shadow-2xl border overflow-hidden" style="background-color: var(--bg-sidebar); border-color: var(--border-color);">
       <div class="px-5 py-4 flex items-center justify-between border-b" style="background-color: var(--bg-header); border-color: var(--border-color);">
         <div class="flex items-center gap-2">
@@ -383,8 +401,8 @@
             <i data-lucide="user-check" class="w-4 h-4"></i>
           </div>
           <div>
-            <h3 class="font-semibold text-base leading-tight">Create Your Account</h3>
-            <p class="text-[11px]" style="color: var(--text-secondary);">Set up your profile to start messaging</p>
+            <h3 id="acct-modal-title" class="font-semibold text-base leading-tight">Account Access</h3>
+            <p class="text-[11px]" style="color: var(--text-secondary);">Create an account, log in, or sync from another device</p>
           </div>
         </div>
         <button id="btn-close-account" type="button" class="p-1.5 rounded-full hover:bg-black/10" style="color: var(--text-secondary);" title="Close">
@@ -392,6 +410,20 @@
         </button>
       </div>
 
+      <!-- Tabs: Create Account | Log In | Sync Device -->
+      <div class="flex border-b text-xs font-medium" style="border-color: var(--border-color);">
+        <button id="tab-acct-signup" type="button" class="flex-1 py-2.5 text-center border-b-2 transition-colors" style="border-color: var(--text-primary); color: var(--text-primary);">
+          Create Account
+        </button>
+        <button id="tab-acct-login" type="button" class="flex-1 py-2.5 text-center border-b-2 border-transparent transition-colors" style="color: var(--text-secondary);">
+          Log In
+        </button>
+        <button id="tab-acct-sync" type="button" class="flex-1 py-2.5 text-center border-b-2 border-transparent transition-colors" style="color: var(--text-secondary);">
+          Other Device
+        </button>
+      </div>
+
+      <!-- Tab 1: Create Account -->
       <form id="form-create-account" class="p-5 space-y-3.5" novalidate>
         <div>
           <label for="acct-fullname" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">Full Name</label>
@@ -427,6 +459,47 @@
           </button>
         </div>
       </form>
+
+      <!-- Tab 2: Log In (Email ID & Password) -->
+      <form id="form-login-account" class="hidden p-5 space-y-3.5" novalidate>
+        <div>
+          <label for="login-email" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">Email ID</label>
+          <input id="login-email" type="email" maxlength="80" placeholder="Enter your registered email" class="w-full px-3 py-2 rounded-lg text-sm border outline-none" style="background-color: var(--bg-input); border-color: var(--border-color); color: var(--text-primary);" required />
+        </div>
+        <div>
+          <label for="login-password" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">Password</label>
+          <input id="login-password" type="password" maxlength="64" placeholder="Enter your password" class="w-full px-3 py-2 rounded-lg text-sm border outline-none" style="background-color: var(--bg-input); border-color: var(--border-color); color: var(--text-primary);" required />
+        </div>
+
+        <p id="login-error-msg" class="hidden text-xs text-rose-500"></p>
+        <p class="text-[11px] leading-relaxed" style="color: var(--text-secondary);">
+          Logging in on a new phone or computer? Use the <strong>Other Device</strong> tab to paste your Account Sync Code once.
+        </p>
+
+        <div class="flex items-center justify-end gap-2 pt-1">
+          <button type="submit" class="px-5 py-2 rounded-lg text-xs font-semibold text-white flex items-center gap-1.5" style="background-color: var(--accent);">
+            <i data-lucide="log-in" class="w-4 h-4"></i>
+            <span>Log In</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- Tab 3: Other Device Sync Code -->
+      <div id="panel-acct-sync" class="hidden p-5 space-y-3.5">
+        <p class="text-xs leading-relaxed" style="color: var(--text-secondary);">
+          Copy your <strong>Account Sync Code</strong> on your first device and paste it here on your second device to restore your Email, Username, and Chat ID.
+        </p>
+        <textarea id="sync-code-input" rows="3" placeholder="Paste Account Sync Code here..." class="w-full p-2.5 rounded-lg text-xs font-mono border outline-none resize-none" style="background-color: var(--bg-input); border-color: var(--border-color); color: var(--text-primary);"></textarea>
+        <p id="sync-error-msg" class="hidden text-xs text-rose-500"></p>
+        <div class="flex items-center justify-between gap-2">
+          <button id="btn-copy-my-sync" type="button" class="px-3 py-2 rounded-lg text-xs font-medium border hover:bg-black/5 dark:hover:bg-white/10" style="border-color: var(--border-color);">
+            Copy My Sync Code
+          </button>
+          <button id="btn-apply-sync" type="button" class="px-4 py-2 rounded-lg text-xs font-semibold text-white" style="background-color: var(--accent);">
+            Restore Account
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -451,10 +524,21 @@
           <label for="input-my-name" class="block text-xs font-medium mb-1" style="color: var(--text-secondary);">Display Name</label>
           <input id="input-my-name" type="text" maxlength="28" class="w-full px-3 py-2 rounded-lg text-sm border outline-none" style="background-color: var(--bg-input); border-color: var(--border-color); color: var(--text-primary);" />
         </div>
-        <div class="flex items-center justify-between gap-2 pt-1">
-          <button id="btn-open-create-account" type="button" class="text-xs font-medium hover:underline" style="color: var(--accent);">
-            Create / Switch Account
+        <div id="profile-sync-row" class="hidden pt-1">
+          <button id="btn-profile-copy-sync" type="button" class="w-full py-2 px-3 rounded-lg text-xs font-medium border flex items-center justify-center gap-1.5 hover:bg-black/5 dark:hover:bg-white/10" style="border-color: var(--border-color);">
+            <i data-lucide="smartphone" class="w-3.5 h-3.5"></i>
+            <span>Copy Sync Code for Another Device</span>
           </button>
+        </div>
+        <div class="flex items-center justify-between gap-2 pt-1">
+          <div class="flex items-center gap-3">
+            <button id="btn-open-create-account" type="button" class="text-xs font-medium hover:underline" style="color: var(--text-secondary);">
+              Create / Switch Account
+            </button>
+            <button id="btn-logout-account" type="button" class="hidden text-xs font-medium text-rose-500 hover:underline">
+              Log Out
+            </button>
+          </div>
           <button id="btn-save-profile" type="button" class="px-4 py-2 rounded-lg text-xs font-medium text-white" style="background-color: var(--accent);">Save</button>
         </div>
       </div>
@@ -506,6 +590,35 @@
     (function () {
       'use strict';
 
+      // ---------- Firebase Configuration ----------
+      const firebaseConfig = {
+        apiKey: "AIzaSyBGCTI3q0UVzCk_1__K891iboBuAE-zkO4",
+        authDomain: "ultronschat.firebaseapp.com",
+        projectId: "ultronschat",
+        storageBucket: "ultronschat.firebasestorage.app",
+        messagingSenderId: "891817339874",
+        appId: "1:891817339874:web:4586add629fbc54349e7bb",
+        measurementId: "G-0JRLWN43L0"
+      };
+
+      let fbAuth = null;
+      let fbDb = null;
+      let fbEnabled = false;
+      const fbUnsubscribers = {};
+
+      try {
+        if (typeof window.firebase !== 'undefined') {
+          if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+          }
+          fbAuth = firebase.auth();
+          fbDb = firebase.firestore();
+          fbEnabled = true;
+        }
+      } catch (_) {
+        fbEnabled = false;
+      }
+
       // ---------- Safe Storage ----------
       const STORAGE_KEY = 'pulsechat_state_v1';
       function loadState() {
@@ -519,6 +632,7 @@
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify({
             account: state.account,
+            accounts: state.accounts,
             accountPromptDismissed: state.accountPromptDismissed,
             myName: state.myName,
             myPeerId: state.myPeerId,
@@ -565,6 +679,7 @@
 
       const state = {
         account: (saved && saved.account) || null,
+        accounts: (saved && Array.isArray(saved.accounts)) ? saved.accounts : [],
         accountPromptDismissed: saved ? Boolean(saved.accountPromptDismissed) : false,
         myName: (saved && saved.myName) || 'You',
         myPeerId: (saved && saved.myPeerId) || makeShortId(),
@@ -637,7 +752,19 @@
         manualStatusMsg: document.getElementById('manual-status-msg'),
         btnManualCopyCode: document.getElementById('btn-manual-copy-code'),
         modalAccount: document.getElementById('modal-account'),
+        tabAcctSignup: document.getElementById('tab-acct-signup'),
+        tabAcctLogin: document.getElementById('tab-acct-login'),
+        tabAcctSync: document.getElementById('tab-acct-sync'),
         formCreateAccount: document.getElementById('form-create-account'),
+        formLoginAccount: document.getElementById('form-login-account'),
+        panelAcctSync: document.getElementById('panel-acct-sync'),
+        loginEmail: document.getElementById('login-email'),
+        loginPassword: document.getElementById('login-password'),
+        loginErrorMsg: document.getElementById('login-error-msg'),
+        syncCodeInput: document.getElementById('sync-code-input'),
+        syncErrorMsg: document.getElementById('sync-error-msg'),
+        profileSyncRow: document.getElementById('profile-sync-row'),
+        btnLogoutAccount: document.getElementById('btn-logout-account'),
         acctFullname: document.getElementById('acct-fullname'),
         acctUsername: document.getElementById('acct-username'),
         acctEmail: document.getElementById('acct-email'),
@@ -757,10 +884,14 @@
         el.modalMyId.textContent = state.myPeerId;
         if (state.account) {
           el.profileAccountBadge.classList.remove('hidden');
+          el.profileSyncRow.classList.remove('hidden');
+          el.btnLogoutAccount.classList.remove('hidden');
           el.profileAcctUsername.textContent = '@' + state.account.username;
           el.profileAcctEmail.textContent = state.account.email;
         } else {
           el.profileAccountBadge.classList.add('hidden');
+          el.profileSyncRow.classList.add('hidden');
+          el.btnLogoutAccount.classList.add('hidden');
         }
       }
 
@@ -1000,6 +1131,26 @@
 
         if (chat.type === 'demo') {
           simulateDemoReply(chat.id, payload);
+        } else if (chat.type === 'cloud' && fbEnabled && fbDb && state.account && state.account.uid) {
+          try {
+            fbDb.collection('chats').doc(chat.roomId).collection('messages').doc(msgId).set({
+              id: msgId,
+              senderUid: state.account.uid,
+              senderName: state.myName,
+              text: payload.text || '',
+              attachment: payload.attachment || null,
+              replyTo: payload.replyTo || null,
+              time: payload.time
+            }).then(() => {
+              payload.status = 'delivered';
+              saveState();
+              if (state.activeChatId === chat.id) renderMessages();
+            }).catch(() => {
+              showToast('Cloud send failed — check Firestore rules');
+            });
+          } catch (_) {
+            showToast('Cloud send unavailable');
+          }
         } else if (chat.type === 'peer' || chat.type === 'manual') {
           const conn = state.connections[chat.id];
           if (conn && (conn.open || conn.readyState === 'open')) {
@@ -1439,7 +1590,7 @@
         if (window.lucide) lucide.createIcons();
       });
 
-      el.formCreateAccount.addEventListener('submit', (e) => {
+      el.formCreateAccount.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fullName = el.acctFullname.value.trim();
         const username = el.acctUsername.value.trim().replace(/^@+/, '');
@@ -1462,12 +1613,45 @@
           return;
         }
 
-        state.account = {
+        if (fbEnabled && fbAuth && fbDb) {
+          try {
+            const cred = await fbAuth.createUserWithEmailAndPassword(email, password);
+            const uid = cred.user.uid;
+            await cred.user.updateProfile({ displayName: fullName });
+            const acctRecord = {
+              uid,
+              fullName,
+              username,
+              email: email.toLowerCase(),
+              peerId: state.myPeerId,
+              createdAt: Date.now()
+            };
+            await fbDb.collection('users').doc(uid).set(acctRecord, { merge: true });
+            state.account = acctRecord;
+            state.myName = fullName;
+            state.accountPromptDismissed = true;
+            saveState();
+            renderProfile();
+            el.modalAccount.classList.add('hidden');
+            showToast('Account created for @' + username + '!');
+            return;
+          } catch (err) {
+            el.acctErrorMsg.textContent = (err && err.message) ? err.message : 'Could not create account.';
+            el.acctErrorMsg.classList.remove('hidden');
+            return;
+          }
+        }
+
+        const acctRecord = {
           fullName,
           username,
-          email,
+          email: email.toLowerCase(),
+          password,
+          peerId: state.myPeerId,
           createdAt: Date.now()
         };
+        state.accounts = [acctRecord, ...state.accounts.filter(a => a.email !== acctRecord.email)];
+        state.account = acctRecord;
         state.myName = fullName;
         state.accountPromptDismissed = true;
         saveState();
@@ -1475,6 +1659,239 @@
         el.modalAccount.classList.add('hidden');
         showToast('Account created for @' + username + '!');
       });
+
+      function switchAccountTab(tab) {
+        const tabs = [
+          [el.tabAcctSignup, el.formCreateAccount, 'signup'],
+          [el.tabAcctLogin, el.formLoginAccount, 'login'],
+          [el.tabAcctSync, el.panelAcctSync, 'sync']
+        ];
+        tabs.forEach(([btn, panel, key]) => {
+          const active = key === tab;
+          panel.classList.toggle('hidden', !active);
+          btn.style.borderColor = active ? 'var(--text-primary)' : 'transparent';
+          btn.style.color = active ? 'var(--text-primary)' : 'var(--text-secondary)';
+        });
+        el.acctErrorMsg.classList.add('hidden');
+        el.loginErrorMsg.classList.add('hidden');
+        el.syncErrorMsg.classList.add('hidden');
+      }
+
+      el.tabAcctSignup.addEventListener('click', () => switchAccountTab('signup'));
+      el.tabAcctLogin.addEventListener('click', () => switchAccountTab('login'));
+      el.tabAcctSync.addEventListener('click', () => switchAccountTab('sync'));
+
+      el.formLoginAccount.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = el.loginEmail.value.trim().toLowerCase();
+        const password = el.loginPassword.value;
+        if (!email || !password) {
+          el.loginErrorMsg.textContent = 'Please enter both Email ID and Password.';
+          el.loginErrorMsg.classList.remove('hidden');
+          return;
+        }
+
+        if (fbEnabled && fbAuth && fbDb) {
+          try {
+            const cred = await fbAuth.signInWithEmailAndPassword(email, password);
+            const uid = cred.user.uid;
+            const doc = await fbDb.collection('users').doc(uid).get();
+            const profile = doc.exists ? doc.data() : {
+              uid,
+              fullName: cred.user.displayName || email.split('@')[0],
+              username: email.split('@')[0],
+              email
+            };
+            state.account = profile;
+            state.myName = profile.fullName || profile.username;
+            state.accountPromptDismissed = true;
+            saveState();
+            renderProfile();
+            el.modalAccount.classList.add('hidden');
+            showToast('Welcome back, @' + profile.username + '!');
+            return;
+          } catch (err) {
+            el.loginErrorMsg.textContent = (err && err.message) ? err.message : 'Invalid email or password.';
+            el.loginErrorMsg.classList.remove('hidden');
+            return;
+          }
+        }
+
+        const match = state.accounts.find(a => a.email === email && a.password === password);
+        if (!match) {
+          el.loginErrorMsg.textContent = 'No matching account on this browser. Check your email/password or use the Other Device tab.';
+          el.loginErrorMsg.classList.remove('hidden');
+          return;
+        }
+        state.account = match;
+        state.myName = match.fullName;
+        state.accountPromptDismissed = true;
+        saveState();
+        renderProfile();
+        el.modalAccount.classList.add('hidden');
+        showToast('Welcome back, @' + match.username + '!');
+      });
+
+      function generateSyncCode() {
+        const target = state.account || state.accounts[0];
+        if (!target) return null;
+        return btoa(unescape(encodeURIComponent(JSON.stringify(target))));
+      }
+
+      document.getElementById('btn-copy-my-sync').addEventListener('click', () => {
+        const code = generateSyncCode();
+        if (!code) { showToast('Create an account first to copy a Sync Code'); return; }
+        copyText(code);
+      });
+
+      document.getElementById('btn-profile-copy-sync').addEventListener('click', () => {
+        const code = generateSyncCode();
+        if (code) copyText(code);
+      });
+
+      document.getElementById('btn-apply-sync').addEventListener('click', () => {
+        const raw = el.syncCodeInput.value.trim();
+        if (!raw) return;
+        try {
+          const imported = JSON.parse(decodeURIComponent(escape(atob(raw))));
+          if (!imported || !imported.email || !imported.username) throw new Error('bad');
+          state.accounts = [imported, ...state.accounts.filter(a => a.email !== imported.email)];
+          state.account = imported;
+          state.myName = imported.fullName || imported.username;
+          if (imported.peerId) state.myPeerId = imported.peerId;
+          state.accountPromptDismissed = true;
+          saveState();
+          renderProfile();
+          el.modalAccount.classList.add('hidden');
+          showToast('Account restored for @' + imported.username + '!');
+        } catch (_) {
+          el.syncErrorMsg.textContent = 'Invalid Sync Code. Make sure you copied the full code.';
+          el.syncErrorMsg.classList.remove('hidden');
+        }
+      });
+
+      el.btnLogoutAccount.addEventListener('click', async () => {
+        if (fbEnabled && fbAuth) {
+          try { await fbAuth.signOut(); } catch (_) {}
+        }
+        Object.values(fbUnsubscribers).forEach(unsub => { try { unsub(); } catch (_) {} });
+        state.account = null;
+        state.myName = 'You';
+        saveState();
+        renderProfile();
+        el.modalProfile.classList.add('hidden');
+        switchAccountTab('login');
+        openAccountModal();
+        showToast('Logged out');
+      });
+
+      // Cloud Chat: Find Friend by Email in Firestore + Real-time listener
+      function subscribeCloudRoom(chat) {
+        if (!fbEnabled || !fbDb || !chat.roomId || fbUnsubscribers[chat.roomId]) return;
+        try {
+          const unsub = fbDb.collection('chats').doc(chat.roomId).collection('messages')
+            .orderBy('time', 'asc')
+            .onSnapshot((snap) => {
+              const myUid = state.account && state.account.uid;
+              const msgs = [];
+              snap.forEach((doc) => {
+                const d = doc.data();
+                msgs.push({
+                  id: d.id || doc.id,
+                  sender: d.senderUid === myUid ? 'me' : 'them',
+                  text: d.text || '',
+                  attachment: d.attachment || null,
+                  replyTo: d.replyTo || null,
+                  time: d.time || Date.now(),
+                  status: 'read'
+                });
+              });
+              const prevLen = chat.messages.length;
+              chat.messages = msgs;
+              if (msgs.length > prevLen && msgs[msgs.length - 1].sender === 'them') {
+                if (state.activeChatId !== chat.id) chat.unread = (chat.unread || 0) + 1;
+                playChime();
+              }
+              saveState();
+              renderChatList();
+              if (state.activeChatId === chat.id) renderMessages();
+            });
+          fbUnsubscribers[chat.roomId] = unsub;
+        } catch (_) {}
+      }
+
+      document.getElementById('btn-find-by-email').addEventListener('click', async () => {
+        const friendEmail = document.getElementById('input-friend-email').value.trim().toLowerCase();
+        if (!friendEmail) {
+          showToast('Enter your friend’s Email ID');
+          return;
+        }
+        if (!fbEnabled || !fbDb || !state.account || !state.account.uid) {
+          showToast('Please log in with your account first');
+          return;
+        }
+        if (friendEmail === state.account.email) {
+          showToast('That is your own email!');
+          return;
+        }
+        try {
+          const snap = await fbDb.collection('users').where('email', '==', friendEmail).limit(1).get();
+          if (snap.empty) {
+            showToast('No user found with that email yet—ask them to create an account first');
+            return;
+          }
+          const friend = snap.docs[0].data();
+          const pair = [state.account.uid, friend.uid].sort();
+          const roomId = 'dm_' + pair[0] + '_' + pair[1];
+          const chatId = 'cloud-' + friend.uid;
+          let chat = state.chats.find(c => c.id === chatId);
+          if (!chat) {
+            chat = {
+              id: chatId,
+              roomId,
+              name: friend.fullName || friend.username || friendEmail,
+              type: 'cloud',
+              color: pickColor(friend.uid),
+              status: 'online',
+              unread: 0,
+              messages: []
+            };
+            state.chats.unshift(chat);
+          }
+          subscribeCloudRoom(chat);
+          saveState();
+          renderChatList();
+          selectChat(chatId);
+          closeConnectModal();
+          showToast('Cloud chat opened with ' + chat.name + '!');
+        } catch (err) {
+          showToast('Could not search user: ' + (err.message || 'check Firestore rules'));
+        }
+      });
+
+      // Re-subscribe any saved cloud chats & sync Firebase auth state on load
+      if (fbEnabled && fbAuth && fbDb) {
+        fbAuth.onAuthStateChanged(async (user) => {
+          if (user) {
+            try {
+              const doc = await fbDb.collection('users').doc(user.uid).get();
+              const profile = doc.exists ? doc.data() : {
+                uid: user.uid,
+                fullName: user.displayName || (user.email ? user.email.split('@')[0] : 'User'),
+                username: user.email ? user.email.split('@')[0] : 'user',
+                email: user.email || ''
+              };
+              state.account = profile;
+              state.myName = profile.fullName || profile.username;
+              state.accountPromptDismissed = true;
+              saveState();
+              renderProfile();
+              el.modalAccount.classList.add('hidden');
+              state.chats.filter(c => c.type === 'cloud').forEach(subscribeCloudRoom);
+            } catch (_) {}
+          }
+        });
+      }
 
       document.getElementById('btn-open-create-account').addEventListener('click', () => {
         el.modalProfile.classList.add('hidden');
